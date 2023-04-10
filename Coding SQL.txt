@@ -1,0 +1,119 @@
+## Mencari jumlah character 
+
+SELECT 
+country
+FROM 
+customer_table
+WHERE 
+length(country)>2
+ORDER BY customer_id ASC
+
+## Menghilangkan Duplicate
+
+SELECT
+DISTINCT customer_id, country, state
+FROM 
+customer_table
+ORDER BY customer_id ASC
+
+## Mengambil string yg dipilih
+SELECT
+DISTINCT customer_id
+FROM 
+customer_table
+WHERE
+SUBSTR(country,1,2) = 'US'
+ORDER BY customer_id ASC
+
+## Menghilangkan extra space
+SELECT
+DISTINCT customer_id, state
+FROM 
+customer_table
+WHERE
+TRIM(state) = 'OH'  ## string "OH" asalnya lebih dari > 2 *(Length(state) > 2)
+
+## Mengganti nama
+SELECT
+customer_id,
+CASE
+ WHEN first_name = 'Tnoy' THEN 'Tony'
+ ELSE first_name 
+ END AS cleaned_name
+From 
+customer_table
+
+## Menggabungkan 2 table
+SELECT DISTINCT station_id,
+last_reported, name, short_name, capacity,
+CONCAT(latitude," , ",longitude) as Geospatial
+FROM
+citibike_stations
+GROUP BY station_id, name	** kaya fungsi vlookup
+ORDER BY last_reported ASC	** kaya fungsi sort
+LIMIT 10  				** jumlah kolom yang ditampilkan
+
+## Fungsi join
+SELECT
+    employee_table.name AS employee_name,
+    employee_table.role AS employee_role,
+    departement.name AS departement_name
+FROM
+    employee_table
+INNER JOIN
+departement ON
+departement.department_id = employee_table.department_id
+
+## Mencari jumlah quantity di area tertentu
+SELECT
+warehouse.state as state,
+warehouse.warehouse_alias,
+COUNT(DISTINCT orders.order_id) AS num_order
+FROM
+warehouse
+JOIN 
+orders ON
+orders.warehouse_id = warehouse.warehouse_id
+GROUP BY
+warehouse.state
+
+
+## fungsi dalam fungsi
+
+#1.
+SELECT
+Start_ID, Trip_Duration, Bike_ID,
+(
+    SELECT 
+    AVG(Trip_Duration)
+	FROM
+	citybikes_trip
+    ) AS Avg_Trip_Duration
+FROM citybikes_trip
+
+#2.
+SELECT 
+station_id, name
+FROM
+citibike_stations
+WHERE
+station_id IN
+(
+    SELECT
+    Start_ID
+    FROM
+    citybikes_trip
+    WHERE 
+    User_Type = 'Subscriber'
+    )
+
+## kalkulasi bersama SQL
+SELECT
+    *,
+    (Small_Bags / Total_Bags)*100 AS Small_Bags_Percent,
+    Small_Bags + Large_Bags + XLarge_Bags AS Total_Bags_calc
+FROM
+    avocado_pl
+WHERE
+    XLarge_Bags != 0 AND
+    Total_Bags != 'Total_Bags_calc
